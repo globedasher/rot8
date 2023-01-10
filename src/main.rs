@@ -73,6 +73,7 @@ fn get_window_server_rotation_state(display: &str, backend: &Backend) -> Result<
                 .expect("Unable to deserialize swaymsg JSON output");
             for output in deserialized {
                 if output.name == display {
+                    println!("{}", output.name);
                     return Ok(output.transform);
                 }
             }
@@ -255,6 +256,8 @@ fn main() -> Result<(), String> {
 
     let keyboards = get_keyboards(&backend)?;
 
+    println!("print");
+
     for entry in glob("/sys/bus/iio/devices/iio:device*/in_accel_*_raw").unwrap() {
         match entry {
             Ok(path) => {
@@ -308,8 +311,11 @@ fn main() -> Result<(), String> {
             let y_raw = fs::read_to_string(path_y.as_str()).unwrap();
             let z_raw = fs::read_to_string(path_z.as_str()).unwrap();
             let x_clean = x_raw.trim_end_matches('\n').parse::<i32>().unwrap_or(0);
+            println!("x_clean {}",x_clean);
             let y_clean = y_raw.trim_end_matches('\n').parse::<i32>().unwrap_or(0);
+            println!("y_clean {}",y_clean);
             let z_clean = z_raw.trim_end_matches('\n').parse::<i32>().unwrap_or(0);
+            println!("z_clean {}",z_clean);
 
             // Normalize vectors
             let mut mut_x: f32 = (x_clean as f32) / normalization_factor;
@@ -356,6 +362,7 @@ fn main() -> Result<(), String> {
                 } else {
                     "disabled"
                 };
+                println!("{}",new_state);
                 match backend {
                     Backend::Sway => {
                         Command::new("swaymsg")
